@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 //rutas
-
+//PELICULAS
 //crear pelicula
 app.post("/new_pelicula", async (req, res) => {
   try {
@@ -74,11 +74,69 @@ app.delete("/peliculas/:nombre", async (req, res) => {
   }
 });
 
-//crear libro
+//LIBROS
+//crear un libro
+app.post("/new_libro", async (req, res) => {
+  try {
+    const { nombre, autor, descripcion } = req.body;
+    const newLibro = await pool.query(
+      "INSERT INTO libros (nombre, autor, descripcion) VALUES ($1, $2, $3) RETURNING *",
+      [nombre, autor, descripcion]
+    );
+    res.json(newLibro.rows[0]);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
 //devolver todas los libros
+app.get("/libros", async (req, res) => {
+  try {
+    const libros = await pool.query("SELECT * FROM libros");
+    res.json(libros.rows[0]);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
 //devolver un libro
+app.get("/libros/:nombre", async (req, res) => {
+  try {
+    const { nombre } = req.params;
+    console.log(nombre);
+    const libros = await pool.query("SELECT * FROM libros WHERE nombre = $1", [nombre.toString()]);
+    res.json(libros.rows[0]);
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
 //modificar un libro
+app.put("/libros/:nomb", async (req, res) => {
+  try {
+    const { nomb } = req.params;
+    const { nombre, autor, descripcion } = req.body;
+    const updateLibro = await pool.query(
+      "UPDATE libros SET nombre = $1, autor = $2, descripcion = $3 WHERE nombre = $4",
+      [nombre, autor, descripcion, nomb]
+    );
+    res.json("actualizado!");
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
 //borrar un libro
+app.delete("/libros/:nombre", async (req, res) => {
+  try {
+    const { nombre } = req.params;
+    console.log(nombre);
+    const libro = await pool.query("DELETE FROM libros WHERE nombre = $1", [nombre]);
+    res.json("LIBRO BORRADO");
+  } catch (err) {
+    console.log(err.message);
+  }
+});
 
 //calificar algo
 
